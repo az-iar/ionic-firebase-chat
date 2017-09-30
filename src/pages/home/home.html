@@ -1,14 +1,18 @@
 <ion-header>
   <ion-navbar>
     <ion-title>
-      Ionic Blank
+      Firebase Chat
     </ion-title>
   </ion-navbar>
 </ion-header>
 
 <ion-content padding>
-  The world is your oyster.
-  <p>
-    If you get lost, the <a href="http://ionicframework.com/docs/v2">docs</a> will be your guide.
+  <ion-input #name (keyup.enter)="setName(name.value)" type="text" placeholder="Your name is?" *ngIf="name == ''"></ion-input>
+
+  <ion-input (keyup.enter)="sendMessage()" type="text" [(ngModel)]="message" placeholder="Type your message" *ngIf="name != ''"></ion-input>
+
+  <h3 text-center>Messages</h3>
+  <p *ngFor="let message of messages">
+    {{ message.name }}: {{ message.message }}
   </p>
 </ion-content>
