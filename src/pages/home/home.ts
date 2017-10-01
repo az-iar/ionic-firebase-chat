@@ -1,15 +1,8 @@
 import { Component } from "@angular/core";
 import { NavController, LoadingController, Loading } from "ionic-angular";
-import * as firebase from "firebase";
-
-const config = {
-  apiKey: "AIzaSyCvzxA1x_ov-4qpU913FP_a_WanC5Fmwvg",
-  authDomain: "ionic-training-c1603.firebaseapp.com",
-  databaseURL: "https://ionic-training-c1603.firebaseio.com",
-  projectId: "ionic-training-c1603",
-  storageBucket: "ionic-training-c1603.appspot.com",
-  messagingSenderId: "951903650715"
-};
+import { FirebaseDatabaseProvider } from "../../providers/firebase-database/firebase-database";
+import { FirebaseAuthProvider } from "../../providers/firebase-auth/firebase-auth";
+import { LoginPage } from "../login/login";
 
 @Component({
   selector: "page-home",
@@ -23,55 +16,60 @@ export class HomePage {
 
   loader: Loading;
 
-  constructor(
+  constructor (
     public navCtrl: NavController,
-    public loadingCtrl: LoadingController
+    public firebaseDatabase: FirebaseDatabaseProvider,
+    public firebaseAuth: FirebaseAuthProvider
   ) {
-    // initialize firebase
-    firebase.initializeApp(config);
-    // initialize loader
-    this.loader = this.loadingCtrl.create({
-      content: "Processing.."
+    this.firebaseAuth.onAuthStateChanged(user => {
+      if (user) {
+        this.name = this.firebaseAuth.user().displayName;
+      } else {
+        this.navCtrl.setRoot(LoginPage);
+      }
     });
 
     this.loadMessages();
   }
 
-  loadMessages() {
-    firebase
-      .database()
-      .ref("chats")
+  loadMessages () {
+    this.firebaseDatabase
+      .getChats()
+      .limitToLast(15)
       .on("value", snapshot => {
         let data = snapshot.val();
-        let messages = [];
+        let chats = [];
 
         for (let id in data) {
-          messages.push(data[id]);
+          chats.push(data[id]);
         }
 
-        this.messages = messages;
+        this.messages = chats;
       });
   }
 
-  setName(name) {
+  setName (name) {
     this.name = name;
   }
 
-  sendMessage() {
-    this.loader.present();
+  sendMessage () {
+    let user = this.firebaseAuth.user();
 
-    firebase
-      .database()
-      .ref("chats")
+    this.firebaseDatabase
+      .getChats()
       .push({
-        name: this.name,
+        user: {
+          name: user.displayName
+        },
         message: this.message
       })
       .then(() => {
         // clear message when success
         this.message = "";
-
-        this.loader.dismiss();
       });
+  }
+
+  logout () {
+    this.firebaseAuth.logout();
   }
 }

@@ -1,18 +1,25 @@
 <ion-header>
-  <ion-navbar>
-    <ion-title>
-      Firebase Chat
-    </ion-title>
-  </ion-navbar>
+    <ion-navbar>
+        <ion-title>
+            Firebase Chat
+        </ion-title>
+        <ion-buttons right>
+            <button ion-button icon-only (click)="logout()">
+                <ion-icon name="log-out"></ion-icon>
+            </button>
+        </ion-buttons>
+    </ion-navbar>
 </ion-header>
 
 <ion-content padding>
-  <ion-input #name (keyup.enter)="setName(name.value)" type="text" placeholder="Your name is?" *ngIf="name == ''"></ion-input>
-
-  <ion-input (keyup.enter)="sendMessage()" type="text" [(ngModel)]="message" placeholder="Type your message" *ngIf="name != ''"></ion-input>
-
-  <h3 text-center>Messages</h3>
-  <p *ngFor="let message of messages">
-    {{ message.name }}: {{ message.message }}
-  </p>
+    <div id="chat" ion-fixed padding>
+        <div id="messages">
+            <p *ngFor="let message of messages">
+                {{ message.user?.name || message.name }}: {{ message.message }}
+            </p>
+        </div>
+        <ion-input id="input" (keyup.enter)="sendMessage()" type="text" [(ngModel)]="message"
+                   placeholder="Type your message" *ngIf="name != ''"></ion-input>
+    </div>
+    <!--<ion-input #name (keyup.enter)="setName(name.value)" type="text" placeholder="Your name is?" *ngIf="name == ''"></ion-input>-->
 </ion-content>
